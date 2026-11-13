@@ -49,6 +49,9 @@ jobs:
              This is not a replacement for the hardware SDK. */
           #define CONFIG_KQP_AO_WATCH 0
           EOF
+      - name: Add desktop-only launcher adapter
+        run: |
+          cp kodeos-web/launcher_sim.c upstream/web-compat/launcher_sim.c
       - name: Build WebAssembly
         run: bash upstream/build-web.sh
       - name: Upload browser build
