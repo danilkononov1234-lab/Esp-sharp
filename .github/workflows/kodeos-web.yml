@@ -40,6 +40,15 @@ jobs:
           assert old in s, 'SDK SDL2 detection changed upstream'
           p.write_text(s.replace(old,new))
           PY
+      - name: Provide ESP-IDF configuration compatibility header
+        run: |
+          mkdir -p upstream/web-compat
+          cat > upstream/web-compat/sdkconfig.h <<'EOF'
+          #pragma once
+          /* Web simulator: ESP-IDF-only optional features are disabled.
+             This is not a replacement for the hardware SDK. */
+          #define CONFIG_KQP_AO_WATCH 0
+          EOF
       - name: Build WebAssembly
         run: bash upstream/build-web.sh
       - name: Upload browser build
