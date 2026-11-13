@@ -16,7 +16,8 @@ kui_sim_add(kgui_sim SOURCES ${CMAKE_CURRENT_LIST_DIR}/kgui_sim.c ${KGUI_SCREENS
                      INCLUDES ${CMAKE_CURRENT_LIST_DIR}/../screens
                               ${CMAKE_CURRENT_LIST_DIR}/..
                               ${CMAKE_CURRENT_LIST_DIR}/../include
-                              ${KODE_SDK_INCLUDE_DIRS})
+                              ${KODE_SDK_INCLUDE_DIRS}
+                              ${CMAKE_CURRENT_LIST_DIR}/../../../web-compat)
 if(EMSCRIPTEN)
     set_target_properties(kgui_sim PROPERTIES SUFFIX ".html")
     target_link_options(kgui_sim PRIVATE
