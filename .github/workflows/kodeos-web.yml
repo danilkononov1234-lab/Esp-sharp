@@ -64,8 +64,6 @@ jobs:
       - name: Prepare GitHub Pages
         if: success()
         uses: actions/configure-pages@v5
-        with:
-          enablement: true
       - name: Upload GitHub Pages artifact
         if: success()
         uses: actions/upload-pages-artifact@v3
