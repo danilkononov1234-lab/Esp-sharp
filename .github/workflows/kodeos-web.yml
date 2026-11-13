@@ -1,0 +1,31 @@
+name: Build KodeOS WebAssembly simulator
+on:
+  workflow_dispatch:
+  push:
+    branches: [kodeos-web-simulator]
+    paths:
+      - '.github/workflows/kodeos-web.yml'
+      - 'kodeos-web/**'
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: mymindstorm/setup-emsdk@v14
+        with:
+          version: 'latest'
+      - name: Clone original KodeOS and kode-sdk
+        run: |
+          git clone --depth 1 https://github.com/kodediy/KodeOS.git upstream
+          git clone --depth 1 https://github.com/kodediy/kode-sdk.git upstream/sdk
+          cp kodeos-web/CMakeLists.txt upstream/components/kgui/sim/CMakeLists.txt
+          cp kodeos-web/build-web.sh upstream/build-web.sh
+          chmod +x upstream/build-web.sh
+      - name: Build WebAssembly
+        run: bash upstream/build-web.sh
+      - name: Upload browser build
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: kodeos-browser-wasm
+          path: upstream/dist/
