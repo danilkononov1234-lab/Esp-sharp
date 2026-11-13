@@ -21,6 +21,25 @@ jobs:
           cp kodeos-web/CMakeLists.txt upstream/components/kgui/sim/CMakeLists.txt
           cp kodeos-web/build-web.sh upstream/build-web.sh
           chmod +x upstream/build-web.sh
+      - name: Adapt SDL2 detection for Emscripten
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p = Path('upstream/sdk/components/kui/sim/CMakeLists.txt')
+          s = p.read_text()
+          old = 'find_package(PkgConfig REQUIRED)\npkg_check_modules(SDL2 REQUIRED IMPORTED_TARGET sdl2)'
+          new = '''if(EMSCRIPTEN)
+              add_library(kui_emscripten_sdl2 INTERFACE)
+              add_library(PkgConfig::SDL2 ALIAS kui_emscripten_sdl2)
+              target_compile_options(kui_emscripten_sdl2 INTERFACE "-sUSE_SDL=2")
+              target_link_options(kui_emscripten_sdl2 INTERFACE "-sUSE_SDL=2")
+          else()
+              find_package(PkgConfig REQUIRED)
+              pkg_check_modules(SDL2 REQUIRED IMPORTED_TARGET sdl2)
+          endif()'''
+          assert old in s, 'SDK SDL2 detection changed upstream'
+          p.write_text(s.replace(old,new))
+          PY
       - name: Build WebAssembly
         run: bash upstream/build-web.sh
       - name: Upload browser build
