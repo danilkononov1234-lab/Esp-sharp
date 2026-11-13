@@ -6,6 +6,13 @@ on:
     paths:
       - '.github/workflows/kodeos-web.yml'
       - 'kodeos-web/**'
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+concurrency:
+  group: kodeos-pages
+  cancel-in-progress: true
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -54,9 +61,28 @@ jobs:
           cp kodeos-web/launcher_sim.c upstream/web-compat/launcher_sim.c
       - name: Build WebAssembly
         run: bash upstream/build-web.sh
+      - name: Prepare GitHub Pages
+        if: success()
+        uses: actions/configure-pages@v5
+      - name: Upload GitHub Pages artifact
+        if: success()
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: upstream/dist/
       - name: Upload browser build
         if: success()
         uses: actions/upload-artifact@v4
         with:
           name: kodeos-browser-wasm
           path: upstream/dist/
+  deploy:
+    needs: build
+    if: success()
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy KodeOS browser simulator
+        id: deployment
+        uses: actions/deploy-pages@v4
